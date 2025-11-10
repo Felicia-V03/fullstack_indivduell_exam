@@ -22,7 +22,7 @@ const fetchOpenLibraryData = async (title: string): Promise<BookOpen | null> => 
 
   const result: BookOpen = {
     title: oData.title ?? 'Okänd titel',
-    author: oData.author_name ?? 'Okänd författare',
+    author: oData.author_name?.[0] ?? 'Okänd författare',
     imageId: oData.cover_i ?? null,
     publishYear: oData.first_publish_year ?? null,
   };
@@ -40,13 +40,13 @@ const fetchBooksWithCovers = async (): Promise<BookWithData[]> => {
 
       const imageUrl = olData?.imageId
         ? `https://covers.openlibrary.org/b/id/${olData.imageId}-M.jpg`
-        : './res/none.png'; // fallback-bild
+        : './res/none.png';
 
       return {
         title,
         author: olData?.author ?? 'Okänd författare',
         publishYear: olData?.publishYear ?? null,
-        imageUrl,
+        imageUrl
       };
     })
   );

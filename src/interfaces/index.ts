@@ -31,11 +31,11 @@ export interface BookBasic {
 }
 
 export interface BookOpen extends BookBasic{
-  imageId? : number;
+  imageId? : number | null;
   author : string;
-  publishYear : number;
+  publishYear : number | null;
 }
 
 export interface BookWithData extends BookOpen {
-  imageUrl? : string;
+  imageUrl : string;
 }
