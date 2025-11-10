@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="./styles/style.css">
+      <script type="module" src="./index.js"></script>
+      <script src="https://kit.fontawesome.com/f300007e95.js" crossorigin="anonymous"></script>
+      <title>Bibrary</title>
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="header-wrapper">
+        <section class="header-wrapper__start">
+          <aside class="header__left">
+            <h1 class="header-title">
+              Bibrary
+            </h1>
+            <h2 class="header-subtitle">
+              search and find your book
+            </h2>
+          </aside>
+          <aside class="header__right">
+            <img src="./res/book.png" alt="Page Logotype" class="logo-img">
+          </aside>
+        </section>
+        <!-- <section class="header-wrapper__info">
+          <i class="fa-solid fa-arrow-left fa-icon"></i>
+          <h1 class="header-title">
+            Detail Book
+          </h1>
+          <i class="fa-regular fa-bookmark fa-icon"></i>
+        </section> -->
+      </div>
+    </header>
+
+    <main class="page-main">
+      <!-- Page section -->
+      <section class="main-section">
+        <form class="page-form">
+          <input type="text" class="form__input" placeholder="Search for books"/>
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </form>
+        <h3 class="main-title">
+          Books
+        </h3>
+        <section class="books-container">
+          <!-- Book cards will be dynamically inserted here -->
+          
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
