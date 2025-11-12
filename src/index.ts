@@ -1,7 +1,7 @@
 import type { BookData, BookBasic } from './interfaces/index.ts';
 
 // ---------- FETCH FUNCTIONS ----------
-// Hämta titlar från JSON
+// Hämta titlar från JSON (Jesper API)
 const fetchBooks = async (): Promise<string[]> => {
   const response = await fetch('https://santosnr6.github.io/Data/books.json');
   if (!response.ok) throw new Error('Hittade inga böcker');
@@ -9,7 +9,7 @@ const fetchBooks = async (): Promise<string[]> => {
   return data.map(book => book.title);
 };
 
-// Hämta första träffen från Open Library
+// Hämta böckerna detailer från Open Library genom namn eller title
 const fetchBooksOpen = async (title: string): Promise<BookData | null> => {
   try {
     const response = await fetch(`https://openlibrary.org/search.json?q=${title}`);
@@ -24,6 +24,7 @@ const fetchBooksOpen = async (title: string): Promise<BookData | null> => {
       workId: oData.key ?? null,
       imageId: oData.cover_i ?? null,
       publishYear: oData.first_publish_year ?? null,
+      // Använda imageId med Open Library Covers för att får ut boken bild
       imageUrl: oData.cover_i
         ? `https://covers.openlibrary.org/b/id/${oData.cover_i}-M.jpg`
         : './res/none.png'
@@ -34,15 +35,18 @@ const fetchBooksOpen = async (title: string): Promise<BookData | null> => {
   }
 };
 
-// ---------- DOM / UI FUNCTIONS ----------
+// ---------- SECTIONS FUNCTIONS ----------
+//Börja med alla section blir d-none
 const sectionSetup = () : void => {
   const sectionRefs = document.querySelectorAll<HTMLElement>('.section');
   sectionRefs.forEach(section => section.classList.add('d-none'));
 }
 
+//Hämta data-id från olika nav-item och skicka till toggleSectionDisplay
 const navSetup = () : void => {
   const navItemRefs = document.querySelectorAll<HTMLUListElement>('.nav-item');
 
+  //Kontrollera data-id och skicka med till toggleSectionDisplay
   navItemRefs.forEach(navItem => {
     navItem.addEventListener('click', (e : PointerEvent) : void => {
       console.log((e.target as HTMLElement).dataset.id);
@@ -51,6 +55,7 @@ const navSetup = () : void => {
   });
 }
 
+//Använda data-id från navSetup för att ta bort för visa upp vissa section och sätta d-none på vissa som ska inte visa upp
 const toggleSectionDisplay = (section: string | undefined): void => {
   const bookSection = document.querySelector('#bookSection') as HTMLElement;
   const searchSection = document.querySelector('#searchSection') as HTMLElement;
@@ -79,6 +84,8 @@ const toggleSectionDisplay = (section: string | undefined): void => {
   }
 };
 
+// ---------- UI FUNTIONS ----------
+//Skapa bokkort med infomation från fetchBookData
 const createCard = (book: BookData): HTMLElement => {
   const card = document.createElement('div');
   card.classList.add('book-card');
@@ -112,10 +119,12 @@ const createCard = (book: BookData): HTMLElement => {
   return card;
 };
 
+//Favorit toggle funtion, spara key från boken i localstorge och kontrollera om boken är favorit eller inte
 const toggleFavorite = (workId: string, icon: HTMLElement): void => {
   const stored: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
   const index = stored.indexOf(workId);
 
+  //Kontrollera om boken är favorit eller inte, är den inte då skicka workId till localstorage men om den är det då ta den bort
   if (index === -1) {
     stored.push(workId);
     icon.classList.remove('fa-regular');
@@ -127,14 +136,15 @@ const toggleFavorite = (workId: string, icon: HTMLElement): void => {
   }
 
   localStorage.setItem('favorites', JSON.stringify(stored));
-  renderFavorites();
 };
 
+//Sök funktion, skicka inputvalue med fetchBookOpen och får tillbaka svar och vissa upp boken
 const searchBooks = async (): Promise<void> => {
   const input = document.querySelector('#searchInput') as HTMLInputElement;
   const container = document.querySelector('#searchContainer') as HTMLElement;
   const query = input.value.trim();
 
+  //Om sök input är tomt
   if (!query) {
     container.innerHTML = '<p>Skriv något att söka efter...</p>';
     return;
@@ -158,14 +168,17 @@ const searchBooks = async (): Promise<void> => {
   }
 };
 
+//Hämta sök knapp och input
 const searchBtn = document.querySelector('#search-btn') as HTMLElement;
 const searchInput = document.querySelector('#searchInput') as HTMLInputElement;
 
+//Skicka inputvalue med knapp
 searchBtn.addEventListener('click', () => {
   toggleSectionDisplay('search'); // Visa söksektionen
   searchBooks();
 });
 
+//Skicka inputvalue med enter
 searchInput.addEventListener('keydown', (e: KeyboardEvent) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -174,6 +187,8 @@ searchInput.addEventListener('keydown', (e: KeyboardEvent) => {
   }
 });
 
+// ---------- RENDERA AND LOADING ----------
+//Visa upp loading text när böckerna håller på att laddar
 const showLoading = (container: HTMLElement): void => {
   container.innerHTML = `
     <div class="loading">
@@ -182,38 +197,36 @@ const showLoading = (container: HTMLElement): void => {
   `;
 };
 
+//Rendera ut alla böckerna
 const renderBooks = async (): Promise<void> => {
   const container = document.querySelector('#booksContainerAll') as HTMLElement;
-
+  
+  // Visa loading
   showLoading(container);
 
   try {
-    // Hämta titlar och böcker parallellt
+    // Hämta titlar från fetchBooks och skicka och hämta böcker detail med fetchBookOpen
     const titles = await fetchBooks();
     const booksData = await Promise.all(titles.map(fetchBooksOpen));
     const books = booksData.filter((b): b is BookData => b !== null);
 
-    // Rendera direkt
     container.innerHTML = ''; // rensa loading
-    if (books.length === 0) {
-      container.innerHTML = '<p>Inga böcker hittades.</p>';
-      return;
-    }
     books.forEach(book => container.appendChild(createCard(book)));
-
   } catch {
     container.innerHTML = '<p>Kunde inte ladda böcker.</p>';
   }
 };
 
+//Rendera ut alla favoriterna böckerna
 const renderFavorites = async (): Promise<void> => {
-  // Hämta sparade favoriter (titlar)
+  // Hämta sparade favoriter
   const favoriteTitles: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
   const container = document.querySelector('#favoritesContainer') as HTMLElement;
 
   // Visa loading
-  container.innerHTML = `<div class="loading"><p>Laddar favoriter...</p></div>`;
+  showLoading(container);
 
+  //Om det finns ingen favorit
   if (favoriteTitles.length === 0) {
     container.innerHTML = '';
     const p = document.createElement('p');
@@ -239,11 +252,10 @@ const renderFavorites = async (): Promise<void> => {
 };
 
 
-// ---------- INIT APP ----------
-const initApp = (): void => {
-  sectionSetup();
-  navSetup();
-  toggleSectionDisplay('book');
-};
+// ---------- STARTA ----------
+sectionSetup();
+navSetup();
+//Set att det start med book så att det visa upp alla böckerna från början
+toggleSectionDisplay('book');
 
-document.addEventListener('DOMContentLoaded', initApp);
+

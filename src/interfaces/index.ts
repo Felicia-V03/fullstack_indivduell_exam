@@ -8,16 +8,6 @@ const firstTimeCaller = {
   imageurl : 'https://covers.openlibrary.org/b/id/14840886-M.jpg'
 }
 
-// export interface Book {
-//   id: string;
-//   title: string;
-//   author: string;
-//   pages: number;
-//   publishedDate: string;
-//   description: string;
-//   imageurl: string;
-// }
-
 export interface BookBasic {
   title : string;
 }
