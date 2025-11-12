@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #F2E9E0;
+  border-radius: 2rem;
+  border: 1rem solid #CBBBAE;
+  color: #68544D;
+  margin: 5%;
+  padding: 3rem 1.5rem 1.5rem 1.5rem;
+  font-family: "Comic Relief", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.page-header {
+  border-radius: 8px 8px 0 0;
+}
+
+.header-wrapper__start {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+
+  .header-subtitle {
+    font-size: 1rem;
+  }
+
+  .header-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+
+    li {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  .logo-img {
+    color: #68544D;
+    width: 3rem;
+    height: 3rem;
+    border: 2px solid #68544D;
+    border-radius: 50%;
+    padding: 0.2rem;
+  }
+
+  .fa-star {
+    font-size: 2rem;
+    width: 3rem;
+    height: 3rem;
+    border: 2px solid #68544D;
+    border-radius: 50%;
+    padding: 0.2rem;
+  }
+}
+
+.main-section {
+  padding-bottom: 2rem;
+
+  .page-form{
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .form__input {
+      outline: none;
+      font-family: "Comic Relief", system-ui;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 1rem;
+      flex-grow: 1;
+      border: none;
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      background-color: #E7DBCF;
+      color: #68544D;
+      height: 3rem;
+      
+      &::placeholder {
+        color: #68544D;
+      }
+    }
+
+    .fa-magnifying-glass {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-size: 100%;
+      background-color: #F36C71;
+      border-radius: 50px;
+      padding: 0.5rem;
+      height: 3rem;
+      width: 3rem;
+    }
+  }
+
+  .container-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+  }
+
+  .loading {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.5rem;
+}
+
+.book-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.book {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  width: 160px;
+  height: 250px;
+  border-radius: 1.7rem 0.5rem 0.5rem 1.5rem;
+  background-color: #d6b89b;
+}
+
+/* Omslagsbild */
+.book .cover img {
+  width: 85%;
+  height: 100%;
+  display: block;
+  border-top-right-radius: 0.5rem;
+}
+
+.cover {
+  display: flex;
+  justify-content: end;
+  width: 100%;
+  height: 80%;
+}
+
+.book-down {
+  width: 100%;
+  height: 20%;
+  background-color: #a88565;
+  border-radius: 2rem 0 0.5rem 2rem;
+}
+
+.book-inside {
+  justify-self: flex-end;
+  width: 94%;
+  height: 65%;
+  background: linear-gradient(
+    to top,
+    #F0E7DD,
+    #ddcec0
+  );
+  border-radius: 2rem 0 0 2rem;
+  margin-top: 5%;
+}
+
+.book-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.book-author {
+  color: #F36C71;
+  font-size: 0.7rem;
+}
+
+.d-none {
+  display: none;
+}
