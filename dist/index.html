@@ -20,9 +20,19 @@
               search and find your book
             </h2>
           </aside>
-          <aside class="header__right">
-            <img src="./res/book.png" alt="Page Logotype" class="logo-img">
-          </aside>
+          <nav class="header__right">
+            <ul class="header-nav">
+              <li class="nav-item">
+                <img src="./res/book.png" data-id="book" alt="Page Logotype" class="logo-img" >
+                Books
+              </li>
+              <li class="nav-item">
+                <i class="fa-solid fa-star" data-id="favorite"></i>
+                Favorite
+              </li>
+            </ul>
+
+          </nav>
         </section>
         <!-- <section class="header-wrapper__info">
           <i class="fa-solid fa-arrow-left fa-icon"></i>
@@ -35,18 +45,37 @@
     </header>
 
     <main class="page-main">
-      <!-- Page section -->
       <section class="main-section">
         <form class="page-form">
-          <input type="text" class="form__input" placeholder="Search for books"/>
-          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" class="form__input" placeholder="Search for books" id="searchInput"/>
+          <i id="search-btn" class="fa-solid fa-magnifying-glass"></i>
         </form>
-        <h3 class="main-title">
-          Books
-        </h3>
-        <section class="books-container">
-          <!-- Book cards will be dynamically inserted here -->
-          
+        
+        <section class="book-section section" id="bookSection">
+          <div class="content-wrapper">
+            <h3 class="container-title">Books</h3>
+            <div class="books-container books-grid" id="booksContainerAll">
+              <!-- Här visas alla böcker från början -->
+            </div>
+          </div>
+        </section>
+        
+        <section class="search-section section" id="searchSection">
+          <div class="content-wrapper">
+            <h3 class="container-title">Search Results</h3>
+            <div class="search-results books-grid" id="searchContainer">
+              <!-- Här visas sökresultaten -->
+            </div>
+          </div>
+        </section>
+        
+        <section class="favorite-section section" id="favoriteSection">
+          <div class="content-wrapper">
+            <h3 class="container-title">Favorites</h3>
+            <div class="favorites-container books-grid" id="favoritesContainer">
+              <!-- Här visas favoriter -->
+            </div>
+          </div>          
         </section>
       </section>
     </main>

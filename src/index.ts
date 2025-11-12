@@ -1,64 +1,90 @@
-import type { BookWithData, BookBasic, BookOpen } from './interfaces/index.ts';
+import type { BookData, BookBasic } from './interfaces/index.ts';
 
-// 1. Hämta böcker från JSON
+// ---------- FETCH FUNCTIONS ----------
+// Hämta titlar från JSON
 const fetchBooks = async (): Promise<string[]> => {
   const response = await fetch('https://santosnr6.github.io/Data/books.json');
   if (!response.ok) throw new Error('Hittade inga böcker');
-  const data = await response.json();
-
-  // returnera bara titlar
-  const titles = data.map((book: BookBasic) => book.title);
-  return titles;
+  const data: BookBasic[] = await response.json();
+  return data.map(book => book.title);
 };
 
-// 2. Hämta första träffen från Open Library
-const fetchOpenLibraryData = async (title: string): Promise<BookOpen | null> => {
-  const response = await fetch(`https://openlibrary.org/search.json?q=${title}`);
-  if (!response.ok) throw new Error('Kunde inte hämta data från Open Library');
+// Hämta första träffen från Open Library
+const fetchBooksOpen = async (title: string): Promise<BookData | null> => {
+  try {
+    const response = await fetch(`https://openlibrary.org/search.json?q=${title}`);
+    if (!response.ok) throw new Error('Kunde inte hämta data från Open Library');
+    const data = await response.json();
+    const oData = data.docs?.[0];
+    if (!oData) return null;
 
-  const data = await response.json();
-  const oData = data.docs?.[0];
-  if (!oData) return null;
-
-  const result: BookOpen = {
-    title: oData.title ?? 'Okänd titel',
-    author: oData.author_name?.[0] ?? 'Okänd författare',
-    imageId: oData.cover_i ?? null,
-    publishYear: oData.first_publish_year ?? null,
-  };
-
-  return result;
+    return {
+      title: oData.title ?? 'Okänd titel',
+      author: oData.author_name?.[0] ?? 'Okänd författare',
+      workId: oData.key ?? null,
+      imageId: oData.cover_i ?? null,
+      publishYear: oData.first_publish_year ?? null,
+      imageUrl: oData.cover_i
+        ? `https://covers.openlibrary.org/b/id/${oData.cover_i}-M.jpg`
+        : './res/none.png'
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 };
 
-// 3. Kombinera lokal bokdata med Open Library-info
-const fetchBooksWithCovers = async (): Promise<BookWithData[]> => {
-  const titles = await fetchBooks();
+// ---------- DOM / UI FUNCTIONS ----------
+const sectionSetup = () : void => {
+  const sectionRefs = document.querySelectorAll<HTMLElement>('.section');
+  sectionRefs.forEach(section => section.classList.add('d-none'));
+}
 
-  const results = await Promise.all(
-    titles.map(async (title) => {
-      const olData = await fetchOpenLibraryData(title);
+const navSetup = () : void => {
+  const navItemRefs = document.querySelectorAll<HTMLUListElement>('.nav-item');
 
-      const imageUrl = olData?.imageId
-        ? `https://covers.openlibrary.org/b/id/${olData.imageId}-M.jpg`
-        : './res/none.png';
+  navItemRefs.forEach(navItem => {
+    navItem.addEventListener('click', (e : PointerEvent) : void => {
+      console.log((e.target as HTMLElement).dataset.id);
+      toggleSectionDisplay((e.target as HTMLElement).dataset.id);
+    });
+  });
+}
 
-      return {
-        title,
-        author: olData?.author ?? 'Okänd författare',
-        publishYear: olData?.publishYear ?? null,
-        imageUrl
-      };
-    })
-  );
+const toggleSectionDisplay = (section: string | undefined): void => {
+  const bookSection = document.querySelector('#bookSection') as HTMLElement;
+  const searchSection = document.querySelector('#searchSection') as HTMLElement;
+  const favoriteSection = document.querySelector('#favoriteSection') as HTMLElement;
 
-  console.log(results);
-  return results;
+  switch (section) {
+    case 'book':
+      bookSection.classList.remove('d-none');
+      searchSection.classList.add('d-none');
+      favoriteSection.classList.add('d-none');
+      renderBooks();
+      break;
+    case 'search':
+      bookSection.classList.add('d-none');
+      searchSection.classList.remove('d-none');
+      favoriteSection.classList.add('d-none');
+      break;
+    case 'favorite':
+      bookSection.classList.add('d-none');
+      searchSection.classList.add('d-none');
+      favoriteSection.classList.remove('d-none');
+      renderFavorites();
+      break;
+    default:
+      console.log('Felaktig sektion');
+  }
 };
 
-// 4. Skapa ett bokkort-element
-const createCard = (book: BookWithData): HTMLElement => {
+const createCard = (book: BookData): HTMLElement => {
   const card = document.createElement('div');
   card.classList.add('book-card');
+
+  const favorites: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
+  const isFavorite = book.workId && favorites.includes(book.workId);
 
   card.innerHTML = `
     <div class="book">
@@ -69,37 +95,155 @@ const createCard = (book: BookWithData): HTMLElement => {
         <div class="book-inside"></div>
       </div>
     </div>
-    
     <article class="book-detail">
       <section class="book-text">
         <h4 class="book-title">${book.title}</h4>
-        <p class="book-author">${book.author ?? ''}</p>
+        <p class="book-author">${book.author}</p>
       </section>
-      <i class="fa-regular fa-bookmark"></i>
+      <i class="fa-bookmark ${isFavorite ? 'fa-solid active' : 'fa-regular'}"></i>
     </article>
   `;
+
+  const bookmark = card.querySelector('.fa-bookmark') as HTMLElement;
+  if (bookmark && book.workId) {
+    bookmark.addEventListener('click', () => toggleFavorite(book.workId!, bookmark));
+  }
 
   return card;
 };
 
-// 5. Rendera alla böcker i DOM
-const renderBooks = (books: BookWithData[]) => {
-  const container = document.querySelector('.books-container') as HTMLElement;
-  if (!container) return;
+const toggleFavorite = (workId: string, icon: HTMLElement): void => {
+  const stored: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
+  const index = stored.indexOf(workId);
 
-  container.innerHTML = ''; // rensa tidigare innehåll
-  books.forEach((book) => {
-    container.appendChild(createCard(book));
-  });
+  if (index === -1) {
+    stored.push(workId);
+    icon.classList.remove('fa-regular');
+    icon.classList.add('fa-solid', 'active');
+  } else {
+    stored.splice(index, 1);
+    icon.classList.remove('fa-solid', 'active');
+    icon.classList.add('fa-regular');
+  }
+
+  localStorage.setItem('favorites', JSON.stringify(stored));
+  renderFavorites();
 };
 
-// 6. Kör allt
-(async () => {
-  try {
-    const booksWithCovers = await fetchBooksWithCovers();
-    renderBooks(booksWithCovers);
-    console.log(booksWithCovers);
-  } catch (err) {
-    console.error('Fel vid hämtning eller rendering av böcker:', err);
+const searchBooks = async (): Promise<void> => {
+  const input = document.querySelector('#searchInput') as HTMLInputElement;
+  const container = document.querySelector('#searchContainer') as HTMLElement;
+  const query = input.value.trim();
+
+  if (!query) {
+    container.innerHTML = '<p>Skriv något att söka efter...</p>';
+    return;
   }
-})();
+
+  showLoading(container);
+
+  try {
+    const book = await fetchBooksOpen(query);
+    container.innerHTML = ''; // rensa loading
+
+    if (!book) {
+      container.innerHTML = `<p>Ingen bok hittades för "${query}".</p>`;
+      return;
+    }
+
+    container.appendChild(createCard(book));
+
+  } catch {
+    container.innerHTML = `<p>Något gick fel vid sökningen.</p>`;
+  }
+};
+
+const searchBtn = document.querySelector('#search-btn') as HTMLElement;
+const searchInput = document.querySelector('#searchInput') as HTMLInputElement;
+
+searchBtn.addEventListener('click', () => {
+  toggleSectionDisplay('search'); // Visa söksektionen
+  searchBooks();
+});
+
+searchInput.addEventListener('keydown', (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    toggleSectionDisplay('search'); // Visa söksektionen
+    searchBooks();
+  }
+});
+
+const showLoading = (container: HTMLElement): void => {
+  container.innerHTML = `
+    <div class="loading">
+      <p>Laddar böcker.....</p>
+    </div>
+  `;
+};
+
+const renderBooks = async (): Promise<void> => {
+  const container = document.querySelector('#booksContainerAll') as HTMLElement;
+
+  showLoading(container);
+
+  try {
+    // Hämta titlar och böcker parallellt
+    const titles = await fetchBooks();
+    const booksData = await Promise.all(titles.map(fetchBooksOpen));
+    const books = booksData.filter((b): b is BookData => b !== null);
+
+    // Rendera direkt
+    container.innerHTML = ''; // rensa loading
+    if (books.length === 0) {
+      container.innerHTML = '<p>Inga böcker hittades.</p>';
+      return;
+    }
+    books.forEach(book => container.appendChild(createCard(book)));
+
+  } catch {
+    container.innerHTML = '<p>Kunde inte ladda böcker.</p>';
+  }
+};
+
+const renderFavorites = async (): Promise<void> => {
+  // Hämta sparade favoriter (titlar)
+  const favoriteTitles: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
+  const container = document.querySelector('#favoritesContainer') as HTMLElement;
+
+  // Visa loading
+  container.innerHTML = `<div class="loading"><p>Laddar favoriter...</p></div>`;
+
+  if (favoriteTitles.length === 0) {
+    container.innerHTML = '';
+    const p = document.createElement('p');
+    p.classList.add('empty-message');
+    p.textContent = 'Du har inga favoriter sparade ännu';
+    container.appendChild(p);
+    return;
+  }
+
+  try {
+    // Hämta alla favoriter parallellt via titlar
+    const bookPromises = favoriteTitles.map(title => fetchBooksOpen(title));
+    const booksData = await Promise.all(bookPromises);
+
+    const books = booksData.filter((b): b is BookData => b !== null);
+
+    // Rendera böcker
+    container.innerHTML = '';
+    books.forEach(book => container.appendChild(createCard(book)));
+  } catch {
+    container.innerHTML = '<p>Kunde inte ladda favoriter.</p>';
+  }
+};
+
+
+// ---------- INIT APP ----------
+const initApp = (): void => {
+  sectionSetup();
+  navSetup();
+  toggleSectionDisplay('book');
+};
+
+document.addEventListener('DOMContentLoaded', initApp);

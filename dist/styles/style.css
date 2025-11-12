@@ -31,10 +31,31 @@ body {
     font-size: 1rem;
   }
 
+  .header-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+
+    li {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
   .logo-img {
     color: #68544D;
     width: 3rem;
-    height: auto;
+    height: 3rem;
+    border: 2px solid #68544D;
+    border-radius: 50%;
+    padding: 0.2rem;
+  }
+
+  .fa-star {
+    font-size: 2rem;
+    width: 3rem;
+    height: 3rem;
     border: 2px solid #68544D;
     border-radius: 50%;
     padding: 0.2rem;
@@ -82,72 +103,88 @@ body {
     }
   }
 
-  .main-title {
+  .container-title {
     text-align: center;
     margin-bottom: 1.5rem;
     font-size: 2rem;
   }
+
+  .loading {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
 }
 
-.books-container {
+.books-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 1.5rem;
-
-  .book-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .book {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    width: 160px;
-    height: 250px;
-    border-radius: 1.7rem 0.5rem 0.5rem 1.5rem;
-    background-color: #d6b89b;
-  }
-
-  /* Omslagsbild */
-  .book .cover img {
-    width: 85%;
-    height: 100%;
-    display: block;
-    border-top-right-radius: 0.5rem;
-  }
-
-  .cover {
-    display: flex;
-    justify-content: end;
-    width: 100%;
-    height: 80%;
-  }
-
-  .book-down {
-    width: 100%;
-    height: 20%;
-    background-color: #a88565;
-    border-radius: 2rem 0 0.5rem 2rem;
-  }
-
-  .book-inside {
-    justify-self: flex-end;
-    width: 94%;
-    height: 65%;
-    background: linear-gradient(
-      to top,
-      #F0E7DD,
-      #ddcec0
-    );
-    border-radius: 2rem 0 0 2rem;
-    margin-top: 5%;
-  }
-
-  .book-author {
-    color: #F36C71;
-    font-size: 0.7rem;
-  }
 }
 
+.book-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.book {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  width: 160px;
+  height: 250px;
+  border-radius: 1.7rem 0.5rem 0.5rem 1.5rem;
+  background-color: #d6b89b;
+}
+
+/* Omslagsbild */
+.book .cover img {
+  width: 85%;
+  height: 100%;
+  display: block;
+  border-top-right-radius: 0.5rem;
+}
+
+.cover {
+  display: flex;
+  justify-content: end;
+  width: 100%;
+  height: 80%;
+}
+
+.book-down {
+  width: 100%;
+  height: 20%;
+  background-color: #a88565;
+  border-radius: 2rem 0 0.5rem 2rem;
+}
+
+.book-inside {
+  justify-self: flex-end;
+  width: 94%;
+  height: 65%;
+  background: linear-gradient(
+    to top,
+    #F0E7DD,
+    #ddcec0
+  );
+  border-radius: 2rem 0 0 2rem;
+  margin-top: 5%;
+}
+
+.book-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.book-author {
+  color: #F36C71;
+  font-size: 0.7rem;
+}
+
+.d-none {
+  display: none;
+}

@@ -18,24 +18,15 @@ const firstTimeCaller = {
 //   imageurl: string;
 // }
 
-interface Genres {
-  genre : Genre;
-}
-
-interface Genre {
-  genre : string;
-}
-
 export interface BookBasic {
   title : string;
 }
 
-export interface BookOpen extends BookBasic{
-  imageId? : number | null;
+export interface BookData extends BookBasic{
+  imageId : number | null;
   author : string;
   publishYear : number | null;
-}
-
-export interface BookWithData extends BookOpen {
+  workId : string | null;
   imageUrl : string;
+
 }
